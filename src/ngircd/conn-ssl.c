@@ -353,6 +353,20 @@ ConnSSL_InitLibrary( void )
 		goto out;
 	}
 
+	if (SSL_CTX_set_ciphersuites(newctx, Conf_SSLOptions.CipherSuites) == 0) {
+		Log(LOG_ERR, "Failed to apply OpenSSL cipher suites \"%s\"!",
+		    Conf_SSLOptions.CipherSuites);
+		goto out;
+	}
+
+	if (strcmp(Conf_SSLOptions.CipherSuites, "") == 0) {
+	  if (SSL_CTX_set_max_proto_version(newctx, TLS1_2_VERSION) == 0) {
+		Log(LOG_ERR, "Failed to set Maxproto version to Tlsv1.2 when tls1.3 cipher suites are disabled\"%s\"!",
+		    "yeehaw");
+		goto out;
+	  }
+	}
+
 	SSL_CTX_set_session_id_context(newctx, (unsigned char *)"ngircd", 6);
 	SSL_CTX_set_options(newctx, SSL_OP_SINGLE_DH_USE|SSL_OP_NO_SSLv2);
 	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);

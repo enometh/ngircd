@@ -75,7 +75,8 @@ struct SSLOptions {
 	char *DHFile;			/**< File containing DH parameters */
 	array ListenPorts;		/**< Array of listening SSL ports */
 	array KeyFilePassword;		/**< Key file password */
-	char *CipherList;		/**< Set SSL cipher list to use */
+	char *CipherList;		/**< Set SSL cipher list to use TLSv1.2 and below*/
+	char *CipherSuites;		/**< Set SSL cipher suites to use TLSv1.3 */
 };
 #endif
 

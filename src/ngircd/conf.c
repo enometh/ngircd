@@ -89,6 +89,7 @@ static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 
 #ifdef HAVE_LIBSSL
 #define DEFAULT_CIPHERS		"HIGH:!aNULL:@STRENGTH:!SSLv3"
+#define DEFAULT_CIPHER_SUITES	"TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256"
 #endif
 #ifdef HAVE_LIBGNUTLS
 #define DEFAULT_CIPHERS		"SECURE128:-VERS-SSL3.0"
@@ -120,6 +121,9 @@ ConfSSL_Init(void)
 
 	free(Conf_SSLOptions.CipherList);
 	Conf_SSLOptions.CipherList = NULL;
+
+	free(Conf_SSLOptions.CipherSuites);
+	Conf_SSLOptions.CipherSuites = NULL;
 }
 
 /**
@@ -439,6 +443,9 @@ Conf_Test( void )
 					? Conf_SSLOptions.CertFile : "");
 	printf("  CipherList = %s\n", Conf_SSLOptions.CipherList ?
 	       Conf_SSLOptions.CipherList : DEFAULT_CIPHERS);
+	printf("  CipherSuites = %s\n", Conf_SSLOptions.CipherSuites ?
+	       Conf_SSLOptions.CipherSuites : DEFAULT_CIPHER_SUITES);
+
 	printf("  DHFile = %s\n", Conf_SSLOptions.DHFile
 					? Conf_SSLOptions.DHFile : "");
 	printf("  KeyFile = %s\n", Conf_SSLOptions.KeyFile
@@ -1048,6 +1055,10 @@ Read_Config(bool TestOnly, bool IsStarting)
 	/* Set the default ciphers if none were configured */
 	if (!Conf_SSLOptions.CipherList)
 		Conf_SSLOptions.CipherList = strdup_warn(DEFAULT_CIPHERS);
+
+	if (!Conf_SSLOptions.CipherSuites)
+		Conf_SSLOptions.CipherSuites = strdup_warn(DEFAULT_CIPHER_SUITES);
+
 #endif
 
 	return true;
@@ -1772,6 +1783,11 @@ Handle_SSL(const char *File, int Line, char *Var, char *Arg)
 	if (strcasecmp(Var, "CipherList") == 0) {
 		assert(Conf_SSLOptions.CipherList == NULL);
 		Conf_SSLOptions.CipherList = strdup_warn(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "CipherSuites") == 0) {
+		assert(Conf_SSLOptions.CipherSuites == NULL);
+		Conf_SSLOptions.CipherSuites = strdup_warn(Arg);
 		return;
 	}
 
